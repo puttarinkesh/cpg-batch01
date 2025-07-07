@@ -8,22 +8,11 @@ on:
   pull_request:
       branches: []
 
-# variables:
-#  - name: 'azure_devops_org'
-#    default: 'rinkeshputta0639'
-
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      # - name: Checkout private tools
-      #   uses: actions/checkout@v4
-      #   with:
-      #     repository: https://dev.azure.com/rinkeshputta0639/avanza-cpg-batch-01
-      #     token: ${{ secrets.GH_PAT }} # `GH_PAT` is a secret that contains your PAT
-
 
       - name: Set up Git for Azure DevOps
         env:
@@ -47,10 +36,8 @@ jobs:
         with:
           terraform_version: latest
 
+      - name: Terraform Init
+        run: |
+          terraform init
 
-
-
-      # # Runs a single command using the runners shell
-      # - name: Run a one-line script
-      #   run: echo Hello, world!
 
