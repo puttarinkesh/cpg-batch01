@@ -3,14 +3,14 @@ name: Ado to GitHub Migration
 # Controls when the workflow will run
 on:
   workflow_dispatch:
-    push:
-      branches: []
-    pull_request:
+  push:
+      branches: ['main']
+  pull_request:
       branches: []
 
-variables:
- - name: 'azure_devops_org'
-   default: 'rinkeshputta0639'
+# variables:
+#  - name: 'azure_devops_org'
+#    default: 'rinkeshputta0639'
 
 jobs:
   build:
@@ -43,7 +43,7 @@ jobs:
 
 
 
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
-        run: echo Hello, world!
+      # # Runs a single command using the runners shell
+      # - name: Run a one-line script
+      #   run: echo Hello, world!
 
