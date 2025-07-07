@@ -42,11 +42,10 @@ jobs:
           git clone https://$AZURE_DEVOPS_TOKEN@dev.azure.com/$YOUR_AZURE_DEVOPS_ORG/$YOUR_PROJECT/_git/$REPO_NAME
           ls -la
           
-      # - name: List files in repo (Optional)
-      #   env:
-      #     REPO_NAME: ${{ vars.REPO_NAME }}
-      #   run: ls -la {REPO_NAME}
-
+      - name: HashiCorp - Setup Terraform
+        uses: hashicorp/setup-terraform@v2.0.3
+        with:
+          terraform_version: latest
 
 
 
