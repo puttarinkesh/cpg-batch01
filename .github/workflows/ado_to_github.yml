@@ -15,7 +15,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      
+      - name: Checkout private tools
+        uses: actions/checkout@v4
+        with:
+          repository: https://dev.azure.com/rinkeshputta0639/_git/avanza-cpg-batch-01
+          token: ${{ secrets.GH_PAT }} # `GH_PAT` is a secret that contains your PAT
 
 
 
