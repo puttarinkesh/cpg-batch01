@@ -26,6 +26,8 @@ jobs:
 
 
       - name: Set up Git for Azure DevOps
+        env:
+          YOUR_AZURE_DEVOPS_ORG: ${{ vars.YOUR_AZURE_DEVOPS_ORG }
         run: |
           git config --global url."https://{YOUR_AZURE_DEVOPS_ORG}.visualstudio.com".insteadOf "https://dev.azure.com"
           git config --global credential.helper store
@@ -33,6 +35,9 @@ jobs:
       - name: Checkout Azure DevOps repository
         env:
           AZURE_DEVOPS_TOKEN: ${{ secrets.AZURE_DEVOPS_TOKEN }}
+          YOUR_AZURE_DEVOPS_ORG: ${{ vars.YOUR_AZURE_DEVOPS_ORG }
+          YOUR_PROJECT: ${{ vars.YOUR_PROJECT }}
+          REPO_NAME: ${{ vars.REPO_NAME }}
         run: |
           git clone https://$AZURE_DEVOPS_TOKEN@dev.azure.com/$YOUR_AZURE_DEVOPS_ORG/$YOUR_PROJECT/_git/$REPO_NAME
           
