@@ -27,7 +27,7 @@ jobs:
 
       - name: Set up Git for Azure DevOps
         env:
-          YOUR_AZURE_DEVOPS_ORG: ${{ vars.YOUR_AZURE_DEVOPS_ORG }
+          YOUR_AZURE_DEVOPS_ORG: ${{ vars.YOUR_AZURE_DEVOPS_ORG }}
         run: |
           git config --global url."https://{YOUR_AZURE_DEVOPS_ORG}.visualstudio.com".insteadOf "https://dev.azure.com"
           git config --global credential.helper store
