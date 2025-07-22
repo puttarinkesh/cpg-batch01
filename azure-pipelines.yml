@@ -1,0 +1,91 @@
+# Deploy to Azure Kubernetes Service
+# Build and push image to Azure Container Registry; Deploy to Azure Kubernetes Service
+# https://docs.microsoft.com/azure/devops/pipelines/languages/docker
+
+trigger:
+- none
+
+resources:
+- repo: self
+
+variables:
+  # Container registry service connection established during pipeline creation
+  dockerRegistryServiceConnection: 'github-runner-vm-runner-group-mi' #Add Docker Service Connection
+  imageRepository: 'samplewebapp'                                     #This is image repo you can keep it
+  containerRegistry: 'k8internalacr.azurecr.io'                       #Add Container Registry login server
+  dockerfilePath: '**/Dockerfile'                                     #It is already there, not required
+  tag: '$(Build.BuildId)'                                             #It is already there, not required
+  imagePullSecret: 'k8internalacr'                                    #'Try to add as per acr'
+  
+  # Agent VM image name
+  vmImageName: 'ubuntu-latest'
+
+stages:
+- stage: Build
+  displayName: Build stage
+  jobs:
+  - job: Build
+    displayName: Build
+    pool:
+      vmImage: $(vmImageName)
+    steps:
+    - task: Docker@2
+      displayName: Build and push an image to Azure container registry
+      inputs:
+        command: buildAndPush
+        repository: $(imageRepository)
+        dockerfile: $(dockerfilePath)
+        containerRegistry: $(dockerRegistryServiceConnection)
+        tags: |
+          $(tag)
+
+
+    - task: CopyFiles@2
+      inputs:
+        SourceFolder: 'manifests/'
+        Contents: '**/*.yml'
+        TargetFolder: '$(Pipeline.Workspace)/manifests'
+    
+    - task: PublishPipelineArtifact@1
+      inputs:
+       targetPath: '$(Pipeline.Workspace)/manifests'
+       artifact: 'manifests'
+       publishLocation: 'pipeline'
+
+- stage: Deploy
+  displayName: Deploy stage
+  dependsOn: Build
+
+  jobs:
+  - deployment: Deploy
+    displayName: Deploy
+    pool:
+      vmImage: $(vmImageName)
+    environment: 'dev-temp-linux-app-svc'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: KubernetesManifest@1
+            displayName: Create imagePullSecret
+            inputs:
+              action: 'createSecret'
+              kubernetesServiceConnection: 'kubernetes-sc'
+              namespace: 'default'
+              secretType: 'dockerRegistry'
+              secretName: '$(imagePullSecret)'  #Ask question
+              dockerRegistryEndpoint: '$(dockerRegistryServiceConnection)'
+
+          - task: KubernetesManifest@1
+            displayName: Deploy to Kubernetes cluster
+            inputs:
+              action: 'deploy'
+              connectionType: 'kubernetesServiceConnection'
+              kubernetesServiceConnection: 'kubernetes-sc'
+              namespace: 'frontend-app'
+              manifests: |
+                $(Pipeline.Workspace)/manifests/deployment.yml
+                $(Pipeline.Workspace)/manifests/service.yml
+              containers: '$(containerRegistry)/$(imageRepository):$(tag)'
+              imagePullSecrets: '$(imagePullSecret)'
+
